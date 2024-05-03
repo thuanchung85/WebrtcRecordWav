@@ -9,22 +9,51 @@ import android.view.WindowManager
 import com.codewithkael.firebasevideocall.utils.DataModel
 import com.codewithkael.firebasevideocall.utils.DataModelType
 import com.google.gson.Gson
-import org.webrtc.*
+import org.webrtc.AudioTrack
+import org.webrtc.Camera2Enumerator
+import org.webrtc.CameraVideoCapturer
+import org.webrtc.DefaultVideoDecoderFactory
+import org.webrtc.DefaultVideoEncoderFactory
+import org.webrtc.EglBase
+import org.webrtc.IceCandidate
+import org.webrtc.MediaConstraints
+import org.webrtc.MediaStream
+import org.webrtc.PeerConnection
+import org.webrtc.PeerConnectionFactory
+import org.webrtc.ScreenCapturerAndroid
+import org.webrtc.SessionDescription
+import org.webrtc.SurfaceTextureHelper
+import org.webrtc.SurfaceViewRenderer
+import org.webrtc.VideoCapturer
+import org.webrtc.VideoTrack
+import org.webrtc.audio.AudioDeviceModule
+import org.webrtc.audio.JavaAudioDeviceModule
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
 @Singleton
-class WebRTCClient @Inject constructor(
-    private val context: Context,
-    private val gson: Gson
-) {
+class WebRTCClient @Inject constructor(private val context: Context, private val gson: Gson)
+{
+
+
     //class variables
     var listener: Listener? = null
     private lateinit var username: String
 
     //webrtc variables
     private val eglBaseContext = EglBase.create().eglBaseContext
-    private val peerConnectionFactory by lazy { createPeerConnectionFactory() }
+    private val peerConnectionFactory by lazy {
+
+        createPeerConnectionFactory()
+
+    }.apply {
+        if(adm != null) {
+            adm.release();
+        }
+    }
     private var peerConnection: PeerConnection? = null
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("turn:a.relay.metered.ca:443?transport=tcp")
@@ -39,6 +68,11 @@ class WebRTCClient @Inject constructor(
         mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo","true"))
         mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio","true"))
     }
+
+    // Executor thread is started once in private ctor and is used for all
+    // peer connection API calls to ensure new peer connection factory is
+    // created on the same thread as previously destroyed factory.
+    private val executor: ExecutorService? = Executors.newSingleThreadExecutor()
 
     //call variables
     private lateinit var localSurfaceView: SurfaceViewRenderer
@@ -55,18 +89,112 @@ class WebRTCClient @Inject constructor(
     private val localScreenVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private var localScreenShareVideoTrack:VideoTrack?=null
 
+    private var saveRecordedAudioToFile: RecordedAudioToFileController? = null
+    private val appContext: Context = this.context
+    val adm: AudioDeviceModule = createJavaAudioDevice()
+
     //installing requirements section
     init {
+
         initPeerConnectionFactory()
+
     }
+
+
+    //===========
+
+
+    fun createJavaAudioDevice() : AudioDeviceModule {
+        // Enable/disable OpenSL ES playback.
+        saveRecordedAudioToFile =  RecordedAudioToFileController(executor);
+        val audioRecordErrorCallback = object : JavaAudioDeviceModule.AudioRecordErrorCallback {
+            override fun onWebRtcAudioRecordInitError(p0: String?) {
+                Log.e("CHUNG", "onWebRtcAudioRecordInitError: $p0")
+            }
+
+            override fun onWebRtcAudioRecordStartError(p0: JavaAudioDeviceModule.AudioRecordStartErrorCode?, p1: String?)
+            {
+                Log.e("CHUNG", "onWebRtcAudioRecordStartError: $p1")
+            }
+
+            override fun onWebRtcAudioRecordError(p0: String?) {
+                Log.e("CHUNG", "onWebRtcAudioRecordError: $p0")
+            }
+
+        }
+        val audioTrackErrorCallback = object : JavaAudioDeviceModule.AudioTrackErrorCallback {
+            override fun onWebRtcAudioTrackInitError(p0: String?) {
+                Log.e("CHUNG", "onWebRtcAudioTrackInitError: $p0")
+            }
+
+            override fun onWebRtcAudioTrackStartError(
+                p0: JavaAudioDeviceModule.AudioTrackStartErrorCode?,
+                p1: String?
+            ) {
+                Log.e("CHUNG", "onWebRtcAudioTrackStartError: $p1")
+            }
+
+            override fun onWebRtcAudioTrackError(p0: String?) {
+                Log.e("CHUNG", "onWebRtcAudioTrackError: $p0")
+            }
+
+        }
+        val audioRecordStateCallback = object : JavaAudioDeviceModule.AudioRecordStateCallback{
+                override fun onWebRtcAudioRecordStart() {
+                    Log.i("CHUNG", "Audio recording onWebRtcAudioRecordStart");
+                    if(saveRecordedAudioToFile != null) {
+                        saveRecordedAudioToFile!!.start()
+                    }
+                }
+
+                override fun onWebRtcAudioRecordStop() {
+                    Log.i("CHUNG", "Audio recording onWebRtcAudioRecordStop");
+                    if(saveRecordedAudioToFile != null) {
+                        saveRecordedAudioToFile!!.stop()
+                    }
+                }
+
+            }
+        val audioTrackStateCallback = object : JavaAudioDeviceModule.AudioTrackStateCallback{
+            override fun onWebRtcAudioTrackStart() {
+                Log.i("CHUNG", "Audio playout onWebRtcAudioTrackStart");
+            }
+
+            override fun onWebRtcAudioTrackStop() {
+                Log.i("CHUNG", "Audio playout onWebRtcAudioTrackStop");
+            }
+
+        }
+
+
+        return JavaAudioDeviceModule.builder(appContext)
+            .setSamplesReadyCallback(saveRecordedAudioToFile)
+            .setSampleRate(16000)
+            .setUseStereoInput(true)
+            .setUseHardwareAcousticEchoCanceler(false)
+            .setUseHardwareNoiseSuppressor(false)
+            .setAudioRecordErrorCallback(audioRecordErrorCallback)
+            .setAudioTrackErrorCallback(audioTrackErrorCallback)
+            .setAudioRecordStateCallback(audioRecordStateCallback)
+            .setAudioTrackStateCallback(audioTrackStateCallback)
+            .createAudioDeviceModule();
+    }
+
+
     private fun initPeerConnectionFactory() {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
-            .setEnableInternalTracer(true).setFieldTrials("WebRTC-H264HighProfile/Enabled/")
+
+            .setEnableInternalTracer(true)
+            .setFieldTrials("WebRTC-H264HighProfile/Enabled/")
             .createInitializationOptions()
-        PeerConnectionFactory.initialize(options)
+
+        PeerConnectionFactory
+            .initialize(options)
+
     }
     private fun createPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory.builder()
+            .setAudioDeviceModule(adm)
             .setVideoDecoderFactory(
                 DefaultVideoDecoderFactory(eglBaseContext)
             ).setVideoEncoderFactory(
@@ -92,6 +220,7 @@ class WebRTCClient @Inject constructor(
 
     //negotiation section
     fun call(target:String){
+
         peerConnection?.createOffer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 super.onCreateSuccess(desc)
