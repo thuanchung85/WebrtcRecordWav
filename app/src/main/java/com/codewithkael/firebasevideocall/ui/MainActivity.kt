@@ -3,9 +3,11 @@ package com.codewithkael.firebasevideocall.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,6 +23,7 @@ import com.codewithkael.firebasevideocall.utils.DataModelType
 import com.codewithkael.firebasevideocall.utils.getCameraAndMicPermission
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
@@ -40,6 +43,14 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         views = ActivityMainBinding.inflate(layoutInflater)
         setContentView(views.root)
 
+        //từ android sdk 33 thì phải vào setting cấp quyền ghi file băng tay
+        if (Build.VERSION.SDK_INT >= 30) {
+            if (!Environment.isExternalStorageManager()) {
+                val getpermission = Intent()
+                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                startActivity(getpermission)
+            }
+        }
 
         ///XIN QUYEN MICRO//nếu micro ok quyền rôi thi hỏi tiep vi tri nguoi dung. và quyền đọc ghi file
         if (ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
