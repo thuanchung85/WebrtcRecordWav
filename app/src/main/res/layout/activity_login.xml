@@ -4,51 +4,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.LoginActivity">
-
-    <androidx.constraintlayout.utils.widget.ImageFilterView
+    tools:context=".ui.LoginActivity"
+    >
+    <ScrollView
+        android:id="@+id/nsScroll"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/firebaseLogo"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/firebase"
-        android:layout_marginTop="20dp"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/firebaseLogo"
-        android:text="Welcome to Firebase Video Call \n\n\n\n Sign in Here"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:id="@+id/welcomeTv"/>
-    <EditText
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:hint="Username"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"
-        android:id="@+id/usernameEt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcomeTv" />
-    <EditText
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/passwordEt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/usernameEt" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnNext"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <androidx.constraintlayout.utils.widget.ImageFilterView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/firebaseLogo"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/firebase"
+                android:layout_marginTop="20dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/firebaseLogo"
+                android:text="Welcome to Firebase Video Call \n\n\n Sign in Here"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:id="@+id/welcomeTv"/>
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="10dp"
+                android:id="@+id/usernameEt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/welcomeTv" />
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/passwordEt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/usernameEt" />
 
+            <Button
+                android:id="@+id/btn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Sign In"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/passwordEt"
+                app:layout_constraintVertical_bias="0.095" />
+        </LinearLayout>
+    </ScrollView>
+
+
+    <!--Sticks at the bottom-->
     <Button
-        android:layout_width="200dp"
-        android:text="Sign In"
-        android:layout_marginTop="20dp"
+        android:id="@+id/btnNext"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordEt"
-        android:id="@+id/btn"/>
+        android:layout_alignParentBottom="true"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/nsScroll" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
