@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.codewithkael.firebasevideocall.databinding.ActivityLoginBinding
-import com.codewithkael.firebasevideocall.repository.MainRepository
+import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -17,7 +17,8 @@ class LoginActivity : AppCompatActivity() {
     // import class tạm ActivityLoginBinding là truy cập được activity_login.xml
     private lateinit var  views:ActivityLoginBinding
 
-    @Inject lateinit var mainRepository: MainRepository
+    //khởi tạo firebase repository object để đi tới firebase
+    @Inject lateinit var fireBaseMainRepository: FireBaseMainRepository
 
     //===on Create activity===//
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
         views.apply {
             btnSignIn.setOnClickListener {
                 //khi SignIn button click thi gọi mainRepository chạy task login
-                mainRepository.login(usernameEt.text.toString(),passwordEt.text.toString())
+                fireBaseMainRepository.login(usernameEt.text.toString(),passwordEt.text.toString())
                 { isDone, reason ->
                     //nếu login success
                     if (isDone == true){

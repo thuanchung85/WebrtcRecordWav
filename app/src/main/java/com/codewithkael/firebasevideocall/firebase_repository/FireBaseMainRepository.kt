@@ -1,4 +1,4 @@
-package com.codewithkael.firebasevideocall.repository
+package com.codewithkael.firebasevideocall.firebase_repository
 
 import android.content.Intent
 import com.codewithkael.firebasevideocall.firebaseClient.FirebaseClient
@@ -12,12 +12,14 @@ import org.webrtc.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
+//@Inject constructor is an annotation used in Dagger, a popular dependency injection framework for Java and Android, to indicate that a constructor should be used for dependency injection.
 @Singleton
-class MainRepository @Inject constructor(
+class FireBaseMainRepository @Inject constructor(
     private val firebaseClient: FirebaseClient,
     private val webRTCClient: WebRTCClient,
     private val gson: Gson
-) : WebRTCClient.Listener {
+) : WebRTCClient.Listener
+{
 
     private var target: String? = null
     var listener: Listener? = null

@@ -10,7 +10,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.codewithkael.firebasevideocall.R
-import com.codewithkael.firebasevideocall.repository.MainRepository
+import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainRepository
 import com.codewithkael.firebasevideocall.service.MainServiceActions.*
 import com.codewithkael.firebasevideocall.utils.DataModel
 import com.codewithkael.firebasevideocall.utils.DataModelType
@@ -21,7 +21,7 @@ import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainService : Service(), MainRepository.Listener {
+class MainService : Service(), FireBaseMainRepository.Listener {
 
     private val TAG = "MainService"
 
@@ -29,7 +29,7 @@ class MainService : Service(), MainRepository.Listener {
     private var username: String? = null
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var fireBaseMainRepository: FireBaseMainRepository
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var rtcAudioManager: RTCAudioManager
@@ -73,8 +73,8 @@ class MainService : Service(), MainRepository.Listener {
     }
 
     private fun handleStopService() {
-        mainRepository.endCall()
-        mainRepository.logOff {
+        fireBaseMainRepository.endCall()
+        fireBaseMainRepository.logOff {
             isServiceRunning = false
             stopSelf()
         }
@@ -86,16 +86,16 @@ class MainService : Service(), MainRepository.Listener {
             // we should start screen share
             //but we have to keep it in mind that we first should remove the camera streaming first
             if (isPreviousCallStateVideo){
-                mainRepository.toggleVideo(true)
+                fireBaseMainRepository.toggleVideo(true)
             }
-            mainRepository.setScreenCaptureIntent(screenPermissionIntent!!)
-            mainRepository.toggleScreenShare(true)
+            fireBaseMainRepository.setScreenCaptureIntent(screenPermissionIntent!!)
+            fireBaseMainRepository.toggleScreenShare(true)
 
         }else{
             //we should stop screen share and check if camera streaming was on so we should make it on back again
-            mainRepository.toggleScreenShare(false)
+            fireBaseMainRepository.toggleScreenShare(false)
             if (isPreviousCallStateVideo){
-                mainRepository.toggleVideo(false)
+                fireBaseMainRepository.toggleVideo(false)
             }
         }
     }
@@ -119,29 +119,29 @@ class MainService : Service(), MainRepository.Listener {
     private fun handleToggleVideo(incomingIntent: Intent) {
         val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted",true)
         this.isPreviousCallStateVideo = !shouldBeMuted
-        mainRepository.toggleVideo(shouldBeMuted)
+        fireBaseMainRepository.toggleVideo(shouldBeMuted)
     }
 
     private fun handleToggleAudio(incomingIntent: Intent) {
         val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted",true)
-        mainRepository.toggleAudio(shouldBeMuted)
+        fireBaseMainRepository.toggleAudio(shouldBeMuted)
     }
 
     private fun handleSwitchCamera() {
-        mainRepository.switchCamera()
+        fireBaseMainRepository.switchCamera()
     }
 
     private fun handleEndCall() {
         //1. we have to send a signal to other peer that call is ended
-        mainRepository.sendEndCall()
+        fireBaseMainRepository.sendEndCall()
         //2.end out call process and restart our webrtc client
         endCallAndRestartRepository()
     }
 
     private fun endCallAndRestartRepository(){
-        mainRepository.endCall()
+        fireBaseMainRepository.endCall()
         endCallListener?.onCallEnded()
-        mainRepository.initWebrtcClient(username!!)
+        fireBaseMainRepository.initWebrtcClient(username!!)
     }
 
     private fun handleSetupViews(incomingIntent: Intent) {
@@ -149,16 +149,16 @@ class MainService : Service(), MainRepository.Listener {
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall",true)
         val target = incomingIntent.getStringExtra("target")
         this.isPreviousCallStateVideo = isVideoCall
-        mainRepository.setTarget(target!!)
+        fireBaseMainRepository.setTarget(target!!)
         //initialize our widgets and start streaming our video and audio source
         //and get prepared for call
-        mainRepository.initLocalSurfaceView(localSurfaceView!!,isVideoCall)
-        mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+        fireBaseMainRepository.initLocalSurfaceView(localSurfaceView!!,isVideoCall)
+        fireBaseMainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
 
 
         if (!isCaller){
             //start the video call
-            mainRepository.startCall()
+            fireBaseMainRepository.startCall()
         }
 
     }
@@ -171,9 +171,9 @@ class MainService : Service(), MainRepository.Listener {
             startServiceWithNotification()
 
             //setup my clients
-            mainRepository.listener = this
-            mainRepository.initFirebase()
-            mainRepository.initWebrtcClient(username!!)
+            fireBaseMainRepository.listener = this
+            fireBaseMainRepository.initFirebase()
+            fireBaseMainRepository.initWebrtcClient(username!!)
 
         }
     }

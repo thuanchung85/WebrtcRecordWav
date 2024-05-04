@@ -16,7 +16,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.codewithkael.firebasevideocall.adapters.MainRecyclerViewAdapter
 import com.codewithkael.firebasevideocall.databinding.ActivityMainBinding
-import com.codewithkael.firebasevideocall.repository.MainRepository
+import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainRepository
 import com.codewithkael.firebasevideocall.service.MainService
 import com.codewithkael.firebasevideocall.service.MainServiceRepository
 import com.codewithkael.firebasevideocall.utils.DataModel
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
     private var username: String? = null
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var fireBaseMainRepository: FireBaseMainRepository
     @Inject
     lateinit var mainServiceRepository: MainServiceRepository
     private var mainAdapter: MainRecyclerViewAdapter? = null
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
     private fun subscribeObservers() {
         setupRecyclerView()
         MainService.listener = this
-        mainRepository.observeUsersStatus {
+        fireBaseMainRepository.observeUsersStatus {
             Log.d(TAG, "subscribeObservers: $it")
             mainAdapter?.updateList(it)
         }
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
     override fun onVideoCallClicked(username: String) {
         //check if permission of mic and camera is taken
         getCameraAndMicPermission {
-            mainRepository.sendConnectionRequest(username, true) {
+            fireBaseMainRepository.sendConnectionRequest(username, true) {
                 if (it){
                     //we have to start video call
                     //we wanna create an intent to move to call activity
@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
 
     override fun onAudioCallClicked(username: String) {
         getCameraAndMicPermission {
-            mainRepository.sendConnectionRequest(username, false) {
+            fireBaseMainRepository.sendConnectionRequest(username, false) {
                 if (it){
                     //we have to start audio call
                     //we wanna create an intent to move to call activity
