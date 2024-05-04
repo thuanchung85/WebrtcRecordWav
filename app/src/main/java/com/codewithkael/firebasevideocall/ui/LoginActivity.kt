@@ -30,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
 
         //===code cho UI login activity===//
         views.apply {
+            //khởi tạo callback cho nut SignIn button, khi click thi gọi fireBaseMainRepository.login, truyền vào callback function nhận về result
             btnSignIn.setOnClickListener {
                 //khi SignIn button click thi gọi mainRepository chạy task login
                 fireBaseMainRepository.login(usernameEt.text.toString(),passwordEt.text.toString())

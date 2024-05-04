@@ -32,7 +32,9 @@ class FireBaseMainRepository @Inject constructor(
     var listener: Listener? = null
     private var remoteView:SurfaceViewRenderer?=null
 
+    //hàm login với username và password, gọi tới firebaseClient.login
     fun login(username: String, password: String, isDone: (Boolean, String?) -> Unit) {
+        //gọi firebaseClient.login
         firebaseClient.login(username, password, isDone)
     }
 

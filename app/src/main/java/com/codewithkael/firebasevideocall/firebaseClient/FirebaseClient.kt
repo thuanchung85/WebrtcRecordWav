@@ -16,7 +16,9 @@ import javax.inject.Singleton
 //thường dùng tạo database object.
 @Singleton
 class FirebaseClient @Inject constructor(
-    private val dbRef:DatabaseReference,
+    //áp dụng 1 singleton object DatabaseReference
+    private val firebase_databaseRef:DatabaseReference,
+    //áp dụng 1 singleton object Gson
     private val gson:Gson
 ) {
 
@@ -26,31 +28,49 @@ class FirebaseClient @Inject constructor(
     }
 
 
+    //===đây là hàm login chính===//
     fun login(username: String, password: String, done: (Boolean, String?) -> Unit) {
-        dbRef.addListenerForSingleValueEvent(object  : MyEventListener(){
+        //addListenerForSingleValueEvent là lắng ghe value bi thay đổi trong database
+        firebase_databaseRef.addListenerForSingleValueEvent(object  : MyEventListener(){
             override fun onDataChange(snapshot: DataSnapshot) {
                 //if the current user exists
-                if (snapshot.hasChild(username)){
+                if (snapshot.hasChild(username))
+                {
                     //user exists , its time to check the password
                     val dbPassword = snapshot.child(username).child(PASSWORD).value
-                    if (password == dbPassword) {
+                    //nếu password OK
+                    if (password == dbPassword)
+                    {
                         //password is correct and sign in
-                        dbRef.child(username).child(STATUS).setValue(UserStatus.ONLINE)
+                        //tác động vào username, thay đổi status của nó thành Online
+                        firebase_databaseRef.child(username).child(STATUS).setValue(UserStatus.ONLINE)
+                            //nếu thành công thay đổi data trên firebase database
                             .addOnCompleteListener {
+                                //làm xong thì set user name hiện tại của app là username
                                 setUsername(username)
+                                //chạy callback function "done" bõ vào true
                                 done(true,null)
-                            }.addOnFailureListener {
+
+                            }
+                            //nếu fail thay đổi data trên firebase database
+                            .addOnFailureListener {
                                 done(false,"${it.message}")
                             }
-                    }else{
+                    }
+                    //nếu sai password
+                    else
+                    {
                         //password is wrong, notify user
                         done(false,"Password is wrong")
                     }
 
-                }else{
-                    //user doesnt exist, register the user
-                    dbRef.child(username).child(PASSWORD).setValue(password).addOnCompleteListener {
-                        dbRef.child(username).child(STATUS).setValue(UserStatus.ONLINE)
+                }
+                //if user does not exists
+                else
+                {
+                    //user doesn't exist, register the user
+                    firebase_databaseRef.child(username).child(PASSWORD).setValue(password).addOnCompleteListener {
+                        firebase_databaseRef.child(username).child(STATUS).setValue(UserStatus.ONLINE)
                             .addOnCompleteListener {
                                 setUsername(username)
                                 done(true,null)
@@ -67,7 +87,7 @@ class FirebaseClient @Inject constructor(
     }
 
     fun observeUsersStatus(status: (List<Pair<String, String>>) -> Unit) {
-        dbRef.addValueEventListener(object : MyEventListener() {
+        firebase_databaseRef.addValueEventListener(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = snapshot.children.filter { it.key !=currentUsername }.map {
                     it.key!! to it.child(STATUS).value.toString()
@@ -79,7 +99,7 @@ class FirebaseClient @Inject constructor(
 
     fun subscribeForLatestEvent(listener:Listener){
         try {
-            dbRef.child(currentUsername!!).child(LATEST_EVENT).addValueEventListener(
+            firebase_databaseRef.child(currentUsername!!).child(LATEST_EVENT).addValueEventListener(
                 object : MyEventListener() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         super.onDataChange(snapshot)
@@ -102,7 +122,7 @@ class FirebaseClient @Inject constructor(
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit){
         val convertedMessage = gson.toJson(message.copy(sender = currentUsername))
-        dbRef.child(message.target).child(LATEST_EVENT).setValue(convertedMessage)
+        firebase_databaseRef.child(message.target).child(LATEST_EVENT).setValue(convertedMessage)
             .addOnCompleteListener {
                 success(true)
             }.addOnFailureListener {
@@ -111,15 +131,15 @@ class FirebaseClient @Inject constructor(
     }
 
     fun changeMyStatus(status: UserStatus) {
-        dbRef.child(currentUsername!!).child(STATUS).setValue(status.name)
+        firebase_databaseRef.child(currentUsername!!).child(STATUS).setValue(status.name)
     }
 
     fun clearLatestEvent() {
-        dbRef.child(currentUsername!!).child(LATEST_EVENT).setValue(null)
+        firebase_databaseRef.child(currentUsername!!).child(LATEST_EVENT).setValue(null)
     }
 
     fun logOff(function:()->Unit) {
-        dbRef.child(currentUsername!!).child(STATUS).setValue(UserStatus.OFFLINE)
+        firebase_databaseRef.child(currentUsername!!).child(STATUS).setValue(UserStatus.OFFLINE)
             .addOnCompleteListener { function() }
     }
 
