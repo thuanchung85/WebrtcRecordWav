@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MainActivity"
+        <activity android:name=".ui.UsersShowActivity"
             android:exported="true"/>
         <activity android:name=".ui.CallActivity"
             android:exported="true"/>

@@ -9,6 +9,7 @@ import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainReposi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+//========ĐÂY LÀ CỔNG THỨ 2 CỦA APP "LOGIN ACTIVITY" LAUNCHER====///
 //@AndroidEntryPoint is an annotation provided by the Hilt library for enabling dependency injection in Android components. It simplifies the process of injecting dependencies into Android apps and reduces the amount of boilerplate code required for managing dependencies.
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -36,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
                     //nếu login success
                     if (isDone == true){
                         //start moving to our main activity
-                        startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
+                        startActivity(Intent(this@LoginActivity, UsersShowActivity::class.java).apply {
                             putExtra("username",usernameEt.text.toString())
                         })
 

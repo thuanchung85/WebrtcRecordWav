@@ -25,10 +25,10 @@ import com.codewithkael.firebasevideocall.utils.getCameraAndMicPermission
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-
+//========ĐÂY LÀ CỔNG THỨ 3 CỦA APP "MAIN USER VIEW ACTIVITY"====///
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
-    private val TAG = "MainActivity"
+class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
+    private val TAG = "UsersShowActivity"
 
     private lateinit var views: ActivityMainBinding
     private var username: String? = null
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
                     getCameraAndMicPermission {
                         incomingCallLayout.isVisible = false
                         //create an intent to go to video call activity
-                        startActivity(Intent(this@MainActivity,CallActivity::class.java).apply {
+                        startActivity(Intent(this@UsersShowActivity,CallActivity::class.java).apply {
                             putExtra("target",model.sender)
                             putExtra("isVideoCall",isVideoCall)
                             putExtra("isCaller",false)
