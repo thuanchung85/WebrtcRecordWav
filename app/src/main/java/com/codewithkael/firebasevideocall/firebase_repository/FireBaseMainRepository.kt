@@ -12,12 +12,19 @@ import org.webrtc.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-//@Inject constructor is an annotation used in Dagger, a popular dependency injection framework for Java and Android, to indicate that a constructor should be used for dependency injection.
+//@Inject constructor is an annotation used in Dagger, a popular dependency injection framework for Java and Android,
+// to indicate that a constructor should be used for dependency injection.
+
 @Singleton
 class FireBaseMainRepository @Inject constructor(
+    //khác vơí hồi xưa là ta tạo các biến properties bên trong class,
+    // giờ đây ta tạo các biên đó trong params của class để dùng kỹ thuật Dagger dependency injection
+    //nên class FireBaseMainRepository sẽ phu thuộc vào FirebaseClient, WebRTCClient, Gson
+    //FireBaseMainRepository chỉ hoạt động khi bắt buộc có FirebaseClient, WebRTCClient, Gson, chứ không thể tạo kiểu new FirebaseClient() như trước
     private val firebaseClient: FirebaseClient,
     private val webRTCClient: WebRTCClient,
     private val gson: Gson
+
 ) : WebRTCClient.Listener
 {
 

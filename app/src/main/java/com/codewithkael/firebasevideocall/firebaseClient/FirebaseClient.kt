@@ -12,6 +12,8 @@ import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
+//Singleton là 1 object được tạo ra tồn tại song song và duy nhất với toàn APP
+//thường dùng tạo database object.
 @Singleton
 class FirebaseClient @Inject constructor(
     private val dbRef:DatabaseReference,

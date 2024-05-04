@@ -17,7 +17,8 @@ class LoginActivity : AppCompatActivity() {
     // import class tạm ActivityLoginBinding là truy cập được activity_login.xml
     private lateinit var  views:ActivityLoginBinding
 
-    //khởi tạo firebase repository object để đi tới firebase
+    //khởi tạo firebase repository object để đi tới firebase, dùng @Inject để tạo constructor
+    //cái hay là tạo constructor nhưng lại không new hay init nó, nó tự tạo ra luôn
     @Inject lateinit var fireBaseMainRepository: FireBaseMainRepository
 
     //===on Create activity===//
