@@ -3,6 +3,8 @@ import static com.codewithkael.firebasevideocall.webrtc.PCmTowav.PCMToWAV;
 
 import android.media.AudioFormat;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import java.io.File;
@@ -11,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import org.webrtc.audio.JavaAudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule.SamplesReadyCallback;
@@ -78,6 +83,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
      * construction.
      */
     public void stop() {
+        stopTimerTIck();
         Log.d(TAG, "stop");
         synchronized (lock) {
             isRunning = false;
@@ -137,6 +143,38 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
     // Called when new audio samples are ready.
     int getSampleRate ;
     int getChannelCount;
+    boolean isHearVoice;
+
+    private Timer timerTick;
+    int chayTick =0;
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+
+            if(chayTick > 1) {
+                chayTick = 0;
+                Log.d("CHUNG", "CHUNG CHECK STOP VOICE NOW: " + chayTick);
+                //chổ này ta send data đi va xoa file wav làm lại
+                //????
+            }
+            chayTick ++;
+            Log.d("CHUNG", "CHUNG CHECK timer: " + chayTick);
+
+        }
+    };
+
+    public void startTimerTick() {
+        if(timerTick != null) {
+            return;
+        }
+        timerTick = new Timer();
+        timerTick.schedule(timerTask, 0, 1000);
+    }
+
+    public void stopTimerTIck() {
+        timerTick.cancel();
+        timerTick = null;
+    }
     @Override
     public void onWebRtcAudioRecordSamplesReady(JavaAudioDeviceModule.AudioSamples samples) {
         Log.d("CHUNG", "CHUNG onWebRtcAudioRecordSamplesReady: " +samples);
@@ -156,6 +194,8 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             if (rawAudioFileOutputStream == null) {
                 openRawAudioOutputFile(samples.getSampleRate(), samples.getChannelCount());
                 fileSizeInBytes = 0;
+
+                startTimerTick();
             }
         }
         // Append the recorded 16-bit audio samples to the open output file.
@@ -176,9 +216,11 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                         //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + samples.getSampleRate());
                         //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + Arrays.toString(mbuffer));
                         //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + size);
-                        boolean isHearVoice = isHearingVoice(mbuffer, size);
+                         isHearVoice = isHearingVoice(mbuffer, size);
                         if(isHearVoice == true) {
                             Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + isHearVoice);
+                            chayTick --;
+                            if(chayTick < 0) chayTick = 0;
                         }
                         //ta cần 1 bộ timer để bật ngược lại isHearVoice = false để chuyển qua state không nghe thấy voice gì sau khi nghe 1 loạt voice
 
