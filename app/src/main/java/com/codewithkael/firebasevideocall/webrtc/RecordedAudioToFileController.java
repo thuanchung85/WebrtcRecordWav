@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import org.webrtc.audio.JavaAudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule.SamplesReadyCallback;
@@ -172,8 +173,16 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                         //cần 1 cơ chế nhận diện khi user ngưng nói thì gởi data củ đi,xoá data củ ghi file lại từ đầu
                         byte[] mbuffer = samples.getData();
                         int size = samples.getData().length;
+                        //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + samples.getSampleRate());
+                        //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + Arrays.toString(mbuffer));
+                        //Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + size);
                         boolean isHearVoice = isHearingVoice(mbuffer, size);
-                        Log.e("CHUNG", "CHUNG isHearVoice: " + isHearVoice);
+                        if(isHearVoice == true) {
+                            Log.e("CHUNG", "CHUNG CHECK isHearVoice: " + isHearVoice);
+                        }
+                        //ta cần 1 bộ timer để bật ngược lại isHearVoice = false để chuyển qua state không nghe thấy voice gì sau khi nghe 1 loạt voice
+
+
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to write audio to file: " + e.getMessage());
@@ -200,9 +209,11 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             s += Math.abs(buffer[i]);
             //KHAI BÁO NGƯỠNG ÂM THANH, mà nếu vượt nguonng này thi coi như là có data voice thường là 2000
             //int amplitudeThreshold = global.getAmplitudeThreshold();
-            int amplitudeThreshold = 2000;
-            //nếu s vượt ngưỡng âm thanh 2000 thì coi như có tiếng con người nói vào buffter
+            int amplitudeThreshold = 300;
+            //nếu s vượt ngưỡng âm thanh 280 thì coi như có tiếng con người nói vào buffter
+
             if (s > amplitudeThreshold) {
+                Log.e("CHUNG", "CHUNG CHECK amplitudeThreshold: " + s);
                 return true;
             }
         }
