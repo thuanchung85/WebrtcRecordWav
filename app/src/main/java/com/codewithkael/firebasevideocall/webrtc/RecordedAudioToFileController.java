@@ -169,6 +169,11 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                         fileSizeInBytes += samples.getData().length;
                         Log.e("CHUNG", " to write audio to file: " + fileSizeInBytes + " byte");
 
+                        //cần 1 cơ chế nhận diện khi user ngưng nói thì gởi data củ đi,xoá data củ ghi file lại từ đầu
+                        byte[] mbuffer = samples.getData();
+                        int size = samples.getData().length;
+                        boolean isHearVoice = isHearingVoice(mbuffer, size);
+                        Log.e("CHUNG", "CHUNG isHearVoice: " + isHearVoice);
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to write audio to file: " + e.getMessage());
@@ -176,4 +181,33 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             }
         });
     }
+
+    ///========func hellper==//
+    private boolean isHearingVoice(byte[] buffer, int size) {
+        //for duyệt qua cac buffer nằm ở vi trí chẵn
+        for (int i = 0; i < size - 1; i += 2) {
+            // The buffer has LINEAR16 in little endian.
+            //Note that the default behavior of byte-to-int conversion is to preserve the sign of the value (remember byte is a signed type in Java). So for instance:
+            //
+            //byte b1 = -100;
+            //int i1 = b1;
+            //System.out.println(i1); // -100
+            int s = buffer[i + 1];
+            if (s < 0) s *= -1;
+            //DỊCH 8 BIT QUA TRÁI NGHỈA LÀ S SẼ MŨ 8 LẦN LÊN
+            s <<= 8;
+            //đem s + với giá trị phần tữ trước đó, vi trí lẽ
+            s += Math.abs(buffer[i]);
+            //KHAI BÁO NGƯỠNG ÂM THANH, mà nếu vượt nguonng này thi coi như là có data voice thường là 2000
+            //int amplitudeThreshold = global.getAmplitudeThreshold();
+            int amplitudeThreshold = 2000;
+            //nếu s vượt ngưỡng âm thanh 2000 thì coi như có tiếng con người nói vào buffter
+            if (s > amplitudeThreshold) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }
