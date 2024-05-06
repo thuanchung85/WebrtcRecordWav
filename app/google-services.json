@@ -1,34 +1,42 @@
 {
   "project_info": {
-    "project_number": "12957448847",
-    "firebase_url": "https://fir-videocall-d1cf8-default-rtdb.europe-west1.firebasedatabase.app",
-    "project_id": "fir-videocall-d1cf8",
-    "storage_bucket": "fir-videocall-d1cf8.appspot.com"
+    "project_number": "339343121444",
+    "firebase_url": "https://aitranslator-2f529-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "aitranslator-2f529",
+    "storage_bucket": "aitranslator-2f529.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:12957448847:android:abea1125f53b8d133b0efa",
+        "mobilesdk_app_id": "1:339343121444:android:dbc12ae4a658bebb70ccb1",
         "android_client_info": {
           "package_name": "com.codewithkael.firebasevideocall"
         }
       },
       "oauth_client": [
         {
-          "client_id": "12957448847-ao0slpr11b5pcbb589q9jsujt13otk2r.apps.googleusercontent.com",
+          "client_id": "339343121444-5igc9gv6jbjcdggqm814knm0k4nui07v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codewithkael.firebasevideocall",
+            "certificate_hash": "37b29f9d5faa81375244c11a9765cdcc350d6e42"
+          }
+        },
+        {
+          "client_id": "339343121444-nie1brv11l369ja8h8b8dq87qi2cjr40.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCcxKqsrfEZfUJuPu6yMpLiHgYmpm68xHE"
+          "current_key": "AIzaSyDdYG03RfkVw6qA6ahSJRwSslyavu-y7aY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "12957448847-ao0slpr11b5pcbb589q9jsujt13otk2r.apps.googleusercontent.com",
+              "client_id": "339343121444-nie1brv11l369ja8h8b8dq87qi2cjr40.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

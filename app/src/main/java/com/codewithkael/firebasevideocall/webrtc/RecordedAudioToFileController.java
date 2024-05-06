@@ -8,11 +8,14 @@ import android.os.Looper;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,6 +62,10 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             Log.d("CHUNG-", String.format("CHUNG-  ProcessVoice outputFile.createNewFile()"));
             outputFilePCM.createNewFile();
             outputFileWav.createNewFile();
+
+            //start timer
+            startTimerTick();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -97,6 +104,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             }
             fileSizeInBytes = 0;
         }
+/*
         //convert PCM to wav and clear pcm file
         File read = new File(outputFilePCM.getPath());
         File out = new File(outputFileWav.getPath());
@@ -107,6 +115,8 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+ */
     }
 
     // Checks if external storage is available for read and write.
@@ -130,6 +140,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                 + ((channelCount == 1) ? "_mono" : "_stereo") + ".pcm";*/
         //final File outputFile = new File(fileName);
         final File outputFile = outputFilePCM;
+
         try {
             getChannelCount = channelCount;
             getSampleRate = sampleRate;
@@ -137,7 +148,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
         } catch (FileNotFoundException e) {
             Log.e(TAG, "Failed to open audio output file: " + e.getMessage());
         }
-        Log.d("CHUNG", "CHUNG Opened file for recording: " + outputFile.getAbsolutePath());
+        Log.d("CHUNG", "CHUNG CHECK Opened file for recording: " + outputFile.getAbsolutePath());
     }
 
     // Called when new audio samples are ready.
@@ -147,27 +158,87 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
 
     private Timer timerTick;
     int chayTick =0;
-    private TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
 
-            if(chayTick > 1) {
-                chayTick = 0;
-                Log.d("CHUNG", "CHUNG CHECK STOP VOICE NOW: " + chayTick);
-                //chổ này ta send data đi va xoa file wav làm lại
-                //????
-            }
-            chayTick ++;
-            Log.d("CHUNG", "CHUNG CHECK timer: " + chayTick);
-
-        }
-    };
 
     public void startTimerTick() {
+         TimerTask timerTask = new TimerTask() {
+
+            @Override
+            public void run() {
+
+                if(chayTick > 1) {
+                    chayTick = 0;
+                    Log.w("CHUNG", "CHUNG CHECK STOP VOICE NOW: " + chayTick);
+                    //ghi ra file wav
+                    //convert PCM to wav and clear pcm file
+                    File read = new File(outputFilePCM.getPath());
+                    read.deleteOnExit();
+                    Log.w("CHUNG", "CHUNG CHECK CLEAR outputFilePCM " + outputFilePCM.exists());
+                    try {
+                        read.createNewFile();
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    File out = new File(outputFileWav.getPath());
+                    out.deleteOnExit();
+                    Log.w("CHUNG", "CHUNG CHECK CLEAR outputFileWav " + outputFileWav.exists());
+                    try {
+                        out.createNewFile();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+
+                        PCMToWAV(read, out, getChannelCount, getSampleRate, 16);
+                        Log.w("CHUNG", "CHUNG CHECK GHI FILE WAV " + getChannelCount + ": " + getSampleRate);
+                        rawAudioFileOutputStream.close();
+                        rawAudioFileOutputStream = new FileOutputStream(outputFilePCM);
+                        fileSizeInBytes = 0;
+
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                /*
+                //chổ này ta send data đi va xoa file wav làm lại
+                //????
+                //thử copy ra file wav riêng
+                File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/YourAppName");
+                if (directory.exists()) {
+                    String OUTPUT_FILE = "CHUNGrecorded_audio_NEW.wav";
+                    File audioFile = new File(directory, OUTPUT_FILE);
+                    System.out.println(audioFile);
+                    if (audioFile.exists()) {
+                         File copyF = new File( new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/YourAppName"),
+                                "SentenceCHUNGrecorded_audio_tempCopy.wav");
+                        try {
+                            Log.e("CHUNG", "CHUNG CHECK COPY --- COPY NOW");
+                            copyToNewFileWav(audioFile, copyF);
+
+
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+*/
+
+
+                }
+                chayTick ++;
+                Log.d("CHUNG", "CHUNG CHECK timer: " + chayTick);
+
+            }
+        };
+
         if(timerTick != null) {
             return;
         }
         timerTick = new Timer();
+
         timerTick.schedule(timerTask, 0, 1000);
     }
 
@@ -175,15 +246,18 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
         timerTick.cancel();
         timerTick = null;
     }
+
+    //hàm này loop liên tục
     @Override
     public void onWebRtcAudioRecordSamplesReady(JavaAudioDeviceModule.AudioSamples samples) {
-        Log.d("CHUNG", "CHUNG onWebRtcAudioRecordSamplesReady: " +samples);
+        Log.d("CHUNG", "CHUNG  onWebRtcAudioRecordSamplesReady: " +samples);
 
         // The native audio layer on Android should use 16-bit PCM format.
         if (samples.getAudioFormat() != AudioFormat.ENCODING_PCM_16BIT) {
             Log.e(TAG, "Invalid audio format");
             return;
         }
+
         synchronized (lock) {
             // Abort early if stop() has been called.
             if (!isRunning) {
@@ -195,7 +269,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                 openRawAudioOutputFile(samples.getSampleRate(), samples.getChannelCount());
                 fileSizeInBytes = 0;
 
-                startTimerTick();
+
             }
         }
         // Append the recorded 16-bit audio samples to the open output file.
@@ -206,6 +280,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                     // approximately 10 minutes of recording in mono at 48kHz.
                     if (fileSizeInBytes < MAX_FILE_SIZE_IN_BYTES) {
                         // Writes samples.getData().length bytes to output stream.
+
                         rawAudioFileOutputStream.write(samples.getData());
                         fileSizeInBytes += samples.getData().length;
                         Log.e("CHUNG", " to write audio to file: " + fileSizeInBytes + " byte");
@@ -251,7 +326,7 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
             s += Math.abs(buffer[i]);
             //KHAI BÁO NGƯỠNG ÂM THANH, mà nếu vượt nguonng này thi coi như là có data voice thường là 2000
             //int amplitudeThreshold = global.getAmplitudeThreshold();
-            int amplitudeThreshold = 300;
+            int amplitudeThreshold = 350;
             //nếu s vượt ngưỡng âm thanh 280 thì coi như có tiếng con người nói vào buffter
 
             if (s > amplitudeThreshold) {
@@ -262,5 +337,28 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
         return false;
     }
 
+
+    public  void copyToNewFileWav(File src, File dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        try {
+            OutputStream out = new FileOutputStream(dst);
+            try {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            } finally {
+                out.close();
+
+
+            }
+        } finally {
+            in.close();
+
+
+        }
+    }
 
 }
