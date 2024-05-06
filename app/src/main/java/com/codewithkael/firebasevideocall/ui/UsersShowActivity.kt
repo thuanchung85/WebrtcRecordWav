@@ -109,6 +109,7 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
         mainServiceRepository.startService(username!!)
     }
 
+    //====khi user click vào nút video call hình cái camera====//
     override fun onVideoCallClicked(username: String) {
         //check if permission of mic and camera is taken
         getCameraAndMicPermission {
@@ -128,16 +129,22 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
         }
     }
 
+    //====khi user click vào nút audio call hình cái điện thoại====//
     override fun onAudioCallClicked(username: String) {
         getCameraAndMicPermission {
+            //gởi yêu cầu connect lên firebase
             fireBaseMainRepository.sendConnectionRequest(username, false) {
+                //if firebase trả về là OK connect thi vào call activity
                 if (it){
                     //we have to start audio call
                     //we wanna create an intent to move to call activity
                     startActivity(Intent(this,CallActivity::class.java).apply {
                         putExtra("target",username)
                         putExtra("isVideoCall",false)
+
+                        //nếu chính tôi là người gọi thì isCaller = true
                         putExtra("isCaller",true)
+
                     })
                 }
             }
@@ -148,6 +155,7 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
         super.onBackPressed()
         mainServiceRepository.stopService()
     }
+
 
     override fun onCallReceived(model: DataModel) {
         Log.d(TAG, "CHUNG onCallReceived ")
@@ -175,7 +183,10 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
                         startActivity(Intent(this@UsersShowActivity,CallActivity::class.java).apply {
                             putExtra("target",model.sender)
                             putExtra("isVideoCall",isVideoCall)
+
+                            //nếu  tôi là người nhận cuộc gọi thì isCaller = false
                             putExtra("isCaller",false)
+                            putExtra("OK_Call_switch_to_calling_State","ok")
                         })
 
                         //stop ring
@@ -191,6 +202,10 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
                     //stop ring
                     mediaPlayer.stop()
                     mediaPlayer.release()
+
+                    //đây user kia về lại users page, gởi thông báo nào đó về việc từ chối nhận call
+                    fireBaseMainRepository.sendEndCall()
+
                 }
 
             }

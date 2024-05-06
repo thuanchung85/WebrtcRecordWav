@@ -84,6 +84,7 @@ class FireBaseMainRepository @Inject constructor(
         })
     }
 
+    //hàm gởi yêu câu connect tới 1 user nào đó
     fun sendConnectionRequest(target: String, isVideoCall: Boolean, success: (Boolean) -> Unit) {
         firebaseClient.sendMessageToOtherClient(
             DataModel(
@@ -157,6 +158,7 @@ class FireBaseMainRepository @Inject constructor(
         onTransferEventToSocket(
             DataModel(
                 type = EndCall,
+                //bị bug chổ này target!! co khả năng null nếu người huỹ call chưa từng biết người call mình
                 target = target!!
             )
         )

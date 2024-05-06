@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -21,7 +23,7 @@ import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallActivity : AppCompatActivity(), MainService.EndCallListener {
+class CallActivity : AppCompatActivity(), MainService.EndCallListener,  MainService.StartCallListener {
 
     private var target:String?=null
     private var isVideoCall:Boolean= true
@@ -39,6 +41,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
     private lateinit var views:ActivityCallBinding
 
     override fun onStart() {
+        Log.d("CHUNG", "CHUNG CALL ACTIVITY onStart: ")
         super.onStart()
         requestScreenCaptureLauncher = registerForActivityResult(ActivityResultContracts
             .StartActivityForResult()) { result ->
@@ -58,6 +61,15 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         views = ActivityCallBinding.inflate(layoutInflater)
         setContentView(views.root)
         init()
+
+        //
+        if(getIntent().getStringExtra("OK_Call_switch_to_calling_State")!= null){
+            setCallingWithText()
+        }
+    }
+
+    fun setCallingWithText(){
+        views.textViewPleaseWait.text = "Calling with $target"
     }
 
     private fun init(){
@@ -105,6 +117,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         setupToggleAudioDevice()
         setupScreenCasting()
         MainService.endCallListener = this
+        MainService.startCallListener = this
     }
 
     private fun setupScreenCasting() {
@@ -224,6 +237,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
     }
 
     override fun onCallEnded() {
+       Toast.makeText(this,"Call Ended or Canceled!",Toast.LENGTH_SHORT).show()
         finish()
     }
 
@@ -236,4 +250,11 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         MainService.localSurfaceView =null
 
     }
+
+    override fun onCallBegin() {
+       setCallingWithText()
+    }
+
+
 }
+

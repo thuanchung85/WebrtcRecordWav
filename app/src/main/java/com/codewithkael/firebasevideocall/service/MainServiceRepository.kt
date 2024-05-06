@@ -3,6 +3,8 @@ package com.codewithkael.firebasevideocall.service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
+import com.codewithkael.firebasevideocall.ui.CallActivity
 import javax.inject.Inject
 
 class MainServiceRepository @Inject constructor(
@@ -46,6 +48,13 @@ class MainServiceRepository @Inject constructor(
     fun switchCamera() {
         val intent = Intent(context,MainService::class.java)
         intent.action = MainServiceActions.SWITCH_CAMERA.name
+        startServiceIntent(intent)
+    }
+
+    fun changeTextCallActivy() {
+        Log.d("CHUNG", " CHUNG changeTextCallActivy: ")
+        val intent = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.START_CALL.name
         startServiceIntent(intent)
     }
 

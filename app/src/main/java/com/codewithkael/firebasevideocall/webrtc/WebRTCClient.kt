@@ -6,6 +6,8 @@ import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.codewithkael.firebasevideocall.service.MainServiceRepository
 import com.codewithkael.firebasevideocall.utils.DataModel
 import com.codewithkael.firebasevideocall.utils.DataModelType
 import com.google.gson.Gson
@@ -38,7 +40,7 @@ import javax.inject.Singleton
 class WebRTCClient @Inject constructor(private val context: Context, private val gson: Gson)
 {
 
-
+    @Inject lateinit var serviceRepository: MainServiceRepository
     //class variables
     var listener: Listener? = null
     private lateinit var username: String
@@ -93,6 +95,7 @@ class WebRTCClient @Inject constructor(private val context: Context, private val
     private val appContext: Context = this.context
     val adm: AudioDeviceModule = createJavaAudioDevice()
 
+
     //installing requirements section
     init {
 
@@ -144,6 +147,8 @@ class WebRTCClient @Inject constructor(private val context: Context, private val
                     Log.i("CHUNG", "Audio recording onWebRtcAudioRecordStart");
                     if(saveRecordedAudioToFile != null) {
                         saveRecordedAudioToFile!!.start()
+
+                        serviceRepository.changeTextCallActivy()
                     }
                 }
 

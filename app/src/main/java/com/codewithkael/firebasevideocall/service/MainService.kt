@@ -39,6 +39,7 @@ class MainService : Service(), FireBaseMainRepository.Listener {
     companion object {
         var listener: Listener? = null
         var endCallListener:EndCallListener?=null
+        var startCallListener:StartCallListener?=null
         var localSurfaceView: SurfaceViewRenderer?=null
         var remoteSurfaceView: SurfaceViewRenderer?=null
         var screenPermissionIntent : Intent?=null
@@ -59,6 +60,7 @@ class MainService : Service(), FireBaseMainRepository.Listener {
                 START_SERVICE.name -> handleStartService(incomingIntent)
                 SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 END_CALL.name -> handleEndCall()
+                START_CALL.name -> handleStartCall()
                 SWITCH_CAMERA.name -> handleSwitchCamera()
                 TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
                 TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
@@ -136,6 +138,12 @@ class MainService : Service(), FireBaseMainRepository.Listener {
         fireBaseMainRepository.sendEndCall()
         //2.end out call process and restart our webrtc client
         endCallAndRestartRepository()
+    }
+
+    private fun handleStartCall() {
+        //kiêu call activity thay text
+        Log.d(TAG, "CHUNG handleStartCall()")
+        startCallListener?.onCallBegin()
     }
 
     private fun endCallAndRestartRepository(){
@@ -229,5 +237,8 @@ class MainService : Service(), FireBaseMainRepository.Listener {
 
     interface EndCallListener {
         fun onCallEnded()
+    }
+    interface StartCallListener {
+        fun onCallBegin()
     }
 }

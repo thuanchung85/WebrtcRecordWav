@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/remoteView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/remoteView"/>
+        tools:layout_editor_absoluteX="-205dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <org.webrtc.SurfaceViewRenderer
         android:layout_width="100dp"
@@ -17,6 +20,7 @@
         android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toTopOf="@id/controlPanelLayout"
         app:layout_constraintEnd_toEndOf="parent"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -100,7 +104,46 @@
 
     </LinearLayout>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewThumbOfFriend"
+        android:layout_width="155dp"
+        android:layout_height="155dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="250dp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewPleaseWait"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="10dp">
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            app:cardCornerRadius="250dp">
 
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher_pg" />
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textViewPleaseWait"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="284dp"
+        android:gravity="center"
+        android:text="Please wait...\nYour friend accept the call."
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/remoteView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/remoteView"
+        app:layout_constraintTop_toBottomOf="@+id/titleLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
