@@ -3,6 +3,7 @@ package com.codewithkael.firebasevideocall.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View.GONE
 import android.widget.Toast
 import com.codewithkael.firebasevideocall.databinding.ActivityLoginBinding
 import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainRepository
@@ -32,20 +33,40 @@ class LoginActivity : AppCompatActivity() {
         views.apply {
             //khởi tạo callback cho nut SignIn button, khi click thi gọi fireBaseMainRepository.login, truyền vào callback function nhận về result
             btnSignIn.setOnClickListener {
-                //khi SignIn button click thi gọi mainRepository chạy task login
-                fireBaseMainRepository.login(usernameEt.text.toString(),passwordEt.text.toString())
-                { isDone, reason ->
-                    //nếu login success
-                    if (isDone == true){
-                        //start moving to our main activity
-                        startActivity(Intent(this@LoginActivity, UsersShowActivity::class.java).apply {
-                            putExtra("username",usernameEt.text.toString())
-                        })
-
+                if(usernameEt.text.toString().isEmpty() || passwordEt.text.toString().isEmpty()){
+                   Toast.makeText(this@LoginActivity, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                else {
+                    if(usernameEt.text.toString().length < 3 || passwordEt.text.toString().length < 5){
+                        Toast.makeText(this@LoginActivity, "Username and password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
                     }
-                    //nếu login fail
-                    else{
-                        Toast.makeText(this@LoginActivity, reason, Toast.LENGTH_SHORT).show()
+                    else {
+                        //khi SignIn button click thi gọi mainRepository chạy task login
+                        fireBaseMainRepository.login(
+                            usernameEt.text.toString(),
+                            passwordEt.text.toString()
+                        )
+                        { isDone, reason ->
+                            //nếu login success
+                            if (isDone == true) {
+                                //start moving to our main activity
+                                startActivity(
+                                    Intent(
+                                        this@LoginActivity,
+                                        UsersShowActivity::class.java
+                                    ).apply {
+                                        putExtra("username", usernameEt.text.toString())
+                                    })
+
+                            }
+                            //nếu login fail
+                            else {
+                                Toast.makeText(this@LoginActivity, reason, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
                     }
                 }
             }

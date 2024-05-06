@@ -22,14 +22,14 @@
                 android:layout_height="200dp"
                 android:id="@+id/firebaseLogo"
                 app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/firebase"
+                android:src="@mipmap/ic_launcher_foreground"
                 android:layout_marginTop="20dp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 app:layout_constraintTop_toBottomOf="@id/firebaseLogo"
-                android:text="Welcome to Firebase Video Call \n\n\n Sign in Here"
+                android:text="Welcome to Ari Talk \n\n\n Sign in Here"
                 android:gravity="center"
                 android:textStyle="bold"
                 android:id="@+id/welcomeTv"/>
