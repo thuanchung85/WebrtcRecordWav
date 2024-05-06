@@ -164,6 +164,7 @@ class MainService : Service(), FireBaseMainRepository.Listener {
     }
 
     private fun handleStartService(incomingIntent: Intent) {
+        Log.d(TAG, "CHUNG handleStartService()")
         //start our foreground service
         if (!isServiceRunning) {
             isServiceRunning = true
@@ -193,8 +194,8 @@ class MainService : Service(), FireBaseMainRepository.Listener {
             notificationManager.createNotificationChannel(notificationChannel)
             val notification = NotificationCompat.Builder(
                 this, "channel1"
-            ).setSmallIcon(R.mipmap.ic_launcher)
-                .addAction(R.drawable.ic_end_call,"Exit",pendingIntent)
+            )//.setSmallIcon(R.mipmap.ic_launcher)
+                //.addAction(R.drawable.ic_end_call,"Exit",pendingIntent)
 
             startForeground(1, notification.build())
         }

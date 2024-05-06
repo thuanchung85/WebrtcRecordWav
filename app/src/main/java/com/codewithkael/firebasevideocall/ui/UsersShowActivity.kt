@@ -1,8 +1,11 @@
 package com.codewithkael.firebasevideocall.ui
 
 import android.Manifest
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -14,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.codewithkael.firebasevideocall.R
 import com.codewithkael.firebasevideocall.adapters.MainRecyclerViewAdapter
 import com.codewithkael.firebasevideocall.databinding.ActivityMainBinding
 import com.codewithkael.firebasevideocall.firebase_repository.FireBaseMainRepository
@@ -146,12 +150,24 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
     }
 
     override fun onCallReceived(model: DataModel) {
+        Log.d(TAG, "CHUNG onCallReceived ")
         runOnUiThread {
             views.apply {
+                //hiện popup thông báo
                 val isVideoCall = model.type == DataModelType.StartVideoCall
                 val isVideoCallText = if (isVideoCall) "Video" else "Audio"
                 incomingCallTitleTv.text = "${model.sender} is $isVideoCallText Calling you"
                 incomingCallLayout.isVisible = true
+
+                //rung chuông ringring.wav
+                val soundUri =
+                    Uri.parse((ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + packageName).toString() + "/" + R.raw.ringring)
+                val mediaPlayer = MediaPlayer.create(this.root.context, soundUri)
+                mediaPlayer.setVolume(0.1f, 0.1f)
+                mediaPlayer.start()
+                mediaPlayer.isLooping = true;
+
+                //khi bấm nút accept call
                 acceptButton.setOnClickListener {
                     getCameraAndMicPermission {
                         incomingCallLayout.isVisible = false
@@ -161,10 +177,20 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
                             putExtra("isVideoCall",isVideoCall)
                             putExtra("isCaller",false)
                         })
+
+                        //stop ring
+                        mediaPlayer.stop()
+                        mediaPlayer.release()
                     }
                 }
+
+                //khi bấm nút decline call
                 declineButton.setOnClickListener {
                     incomingCallLayout.isVisible = false
+
+                    //stop ring
+                    mediaPlayer.stop()
+                    mediaPlayer.release()
                 }
 
             }
