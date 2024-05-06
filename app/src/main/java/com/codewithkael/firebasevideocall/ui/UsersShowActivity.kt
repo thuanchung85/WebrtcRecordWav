@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -31,7 +32,8 @@ import javax.inject.Inject
 
 //========ĐÂY LÀ CỔNG THỨ 3 CỦA APP "MAIN USER VIEW ACTIVITY"====///
 @AndroidEntryPoint
-class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
+class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener,MainService.RegestCallListener
+{
     private val TAG = "UsersShowActivity"
 
     private lateinit var views: ActivityMainBinding
@@ -85,6 +87,8 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
         subscribeObservers()
         //2. start foreground service to listen negotiations and calls.
         startMyService()
+
+        MainService.regestCallListener = this
     }
 
     private fun subscribeObservers() {
@@ -210,6 +214,12 @@ class UsersShowActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener,
 
             }
         }
+    }
+
+    override fun onCallRegest() {
+       //shut off popup call
+        Toast.makeText(this,"Call ended or canceled!", Toast.LENGTH_SHORT).show()
+        views.incomingCallLayout.isVisible = false
     }
 
 

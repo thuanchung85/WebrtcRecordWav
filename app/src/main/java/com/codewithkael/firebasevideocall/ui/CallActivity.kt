@@ -70,6 +70,10 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener,  MainServ
 
     fun setCallingWithText(){
         views.textViewPleaseWait.text = "Calling with $target"
+        views.endCallButton.visibility = android.view.View.VISIBLE
+        views.toggleMicrophoneButton.visibility = android.view.View.VISIBLE
+        views.toggleAudioDevice.visibility = android.view.View.VISIBLE
+
     }
 
     private fun init(){
@@ -104,8 +108,15 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener,  MainServ
             MainService.localSurfaceView = localView
             serviceRepository.setupViews(isVideoCall,isCaller,target!!)
 
+            //khi bâm nút end call đỏ
             endCallButton.setOnClickListener {
-                serviceRepository.sendEndCall()
+                if(views.toggleMicrophoneButton.isVisible == true) {
+                    serviceRepository.sendEndCall()
+                }
+                else {
+                    serviceRepository.sendEndCall()
+                    serviceRepository.sendRegestCall()
+                }
             }
 
             switchCameraButton.setOnClickListener {
@@ -238,6 +249,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener,  MainServ
 
     override fun onCallEnded() {
        Toast.makeText(this,"Call Ended or Canceled!",Toast.LENGTH_SHORT).show()
+        serviceRepository.sendRegestCall()
         finish()
     }
 

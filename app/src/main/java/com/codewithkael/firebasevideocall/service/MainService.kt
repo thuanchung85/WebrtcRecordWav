@@ -40,6 +40,9 @@ class MainService : Service(), FireBaseMainRepository.Listener {
         var listener: Listener? = null
         var endCallListener:EndCallListener?=null
         var startCallListener:StartCallListener?=null
+
+        var regestCallListener:RegestCallListener?=null
+
         var localSurfaceView: SurfaceViewRenderer?=null
         var remoteSurfaceView: SurfaceViewRenderer?=null
         var screenPermissionIntent : Intent?=null
@@ -61,6 +64,9 @@ class MainService : Service(), FireBaseMainRepository.Listener {
                 SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 END_CALL.name -> handleEndCall()
                 START_CALL.name -> handleStartCall()
+
+                REGEST_CALL.name -> handleRegestCall()
+
                 SWITCH_CAMERA.name -> handleSwitchCamera()
                 TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
                 TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
@@ -145,6 +151,13 @@ class MainService : Service(), FireBaseMainRepository.Listener {
         Log.d(TAG, "CHUNG handleStartCall()")
         startCallListener?.onCallBegin()
     }
+
+    private fun handleRegestCall() {
+        //kiêu user show activity shut off popup accept hay reject neu co
+        Log.d(TAG, "CHUNG handleRegestCall()")
+        regestCallListener?.onCallRegest()
+    }
+
 
     private fun endCallAndRestartRepository(){
         fireBaseMainRepository.endCall()
@@ -240,5 +253,9 @@ class MainService : Service(), FireBaseMainRepository.Listener {
     }
     interface StartCallListener {
         fun onCallBegin()
+    }
+
+    interface RegestCallListener {
+        fun onCallRegest()
     }
 }
