@@ -189,12 +189,16 @@ public class RecordedAudioToFileController implements SamplesReadyCallback {
                         throw new RuntimeException(e);
                     }
                     try {
-
+                        //ghi file pcm thanh wav
                         PCMToWAV(read, out, getChannelCount, getSampleRate, 16);
                         Log.w("CHUNG", "CHUNG CHECK GHI FILE WAV " + getChannelCount + ": " + getSampleRate);
-                        rawAudioFileOutputStream.close();
-                        rawAudioFileOutputStream = new FileOutputStream(outputFilePCM);
-                        fileSizeInBytes = 0;
+
+                        //xoá đóng pcm củ để ghi lại stream mới đè lên, mục tiêu là lấy câu nói cuối cùng của user.
+                        if(rawAudioFileOutputStream != null) {
+                           rawAudioFileOutputStream.close();
+                           rawAudioFileOutputStream = new FileOutputStream(outputFilePCM);
+                           fileSizeInBytes = 0;
+                       }
 
 
                     } catch (IOException e) {
